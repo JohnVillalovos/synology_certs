@@ -1,0 +1,71 @@
+---
+# tasks file for synology_certs
+
+- name: Ensure required variables are defined
+  fail: msg="Variable '{{ item }}' is not defined"
+  when: item not in vars
+  with_items: "{{ required_vars }}"
+
+- name: Copy cert printer script
+  copy:
+    src: print-certs.py
+    dest: "~/ansible/synology_certs/"
+    mode: 0700
+
+##############################################
+###         NGINX Certificates             ###
+##############################################
+- name: Find nginx certificates using script
+  # We want to ignore the 'archive' directories
+  shell: "~/ansible/synology_certs/print-certs.py nginx"
+  register: find_nginx_certs
+
+# - name: Debugging find_nginx_certs
+#   debug: var=find_nginx_certs
+
+- name: Copy new NGINX certificates
+  # item.0 is in the form of: "host.example.com::/usr/syno/etc/certificate/smbftpd/ftpd"
+  # item.0.split('::')[0] = host name
+  # item.0.split('::')[1] = directory path
+  # item.0.split('::')[2] = package name (ignored for NGINX)
+  copy:
+    src: "{{ cert_dir }}/{{ item.0.split('::')[0] }}/{{ item.1 }}"
+    dest: "{{ item.0.split('::')[1] }}/"
+  with_nested:
+    - "{{ find_nginx_certs.stdout_lines }}"
+    - [ 'cert.pem', 'chain.pem', 'fullchain.pem', 'privkey.pem']
+  register: copy_nginx_certs
+
+#- name: Debugging copy_nginx_certs
+#  debug: var=copy_nginx_certs
+
+- name: Restart NGINX
+  command: /usr/syno/sbin/synoservicectl --reload nginx
+  when: copy_nginx_certs.changed
+
+
+##############################################
+###       Package Certificates             ###
+##############################################
+- name: Find package certificates using script
+  # We want to ignore the 'archive' directories
+  shell: "~/ansible/synology_certs/print-certs.py packages"
+  register: find_package_certs
+
+- name: Copy new package certificates
+  # item.0 is in the form of: "host.example.com::/usr/syno/etc/certificate/smbftpd/ftpd"
+  # item.0.split('::')[0] = host name
+  # item.0.split('::')[1] = directory path
+  # item.0.split('::')[2] = package name (ignored for NGINX)
+  copy:
+    src: "{{ cert_dir }}/{{ item.0.split('::')[0] }}/{{ item.1 }}"
+    dest: "{{ item.0.split('::')[1] }}/"
+  with_nested:
+    - "{{ find_package_certs.stdout_lines }}"
+    - [ 'cert.pem', 'chain.pem', 'fullchain.pem', 'privkey.pem']
+  register: copy_package_certs
+
+- name: Restart packages
+  command: /usr/syno/bin/synopkg restart "{{ item.split('::')[2] }}"
+  with_items: "{{ find_package_certs.stdout_lines }}"
+  when: copy_package_certs.changed

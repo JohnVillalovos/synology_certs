@@ -1,0 +1,15 @@
+galaxy_info:
+  author: John L. Villalovos
+  description: Role to install Lets Encrypt certificates onto a Synology system.
+  company: Sodarock.com
+
+  license: Apache License, 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
+
+  min_ansible_version: 2.0
+
+  galaxy_tags:
+    - synology
+    - letsencrypt
+    - acme.sh
+
+dependencies: []

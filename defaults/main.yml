@@ -1,0 +1,4 @@
+---
+# defaults file for synology_certs
+required_vars:
+  - cert_dir
