@@ -40,7 +40,7 @@
 #  debug: var=copy_nginx_certs
 
 - name: Restart NGINX
-  command: /usr/syno/sbin/synoservicectl --reload nginx
+  command: synosystemctl restart nginx
   when: copy_nginx_certs.changed
 
 
