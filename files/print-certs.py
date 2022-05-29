@@ -61,9 +61,9 @@ def get_certificates(dirname):
 
 def find_cert_host(filename):
     cmd_line = ['openssl', 'x509', '-noout', '-subject', '-in', filename]
-    stdout = subprocess.check_output(cmd_line)
-    # Format is: "subject= /CN=hostname.example.com"
-    _, host_name = stdout.split('/CN=', 1)
+    stdout = subprocess.check_output(cmd_line, universal_newlines=True)
+    # Format is: "subject=CN = hostname.example.com"
+    _, host_name = stdout.split('subject=CN =', 1)
     host_name = host_name.strip()
     return host_name
 
