@@ -31,6 +31,7 @@
   copy:
     src: "{{ cert_dir }}/{{ item.0.split('::')[0] }}/{{ item.1 }}"
     dest: "{{ item.0.split('::')[1] }}/"
+    mode: "0400"
   with_nested:
     - "{{ find_nginx_certs.stdout_lines }}"
     - [ 'cert.pem', 'chain.pem', 'fullchain.pem', 'privkey.pem']
@@ -60,6 +61,7 @@
   copy:
     src: "{{ cert_dir }}/{{ item.0.split('::')[0] }}/{{ item.1 }}"
     dest: "{{ item.0.split('::')[1] }}/"
+    mode: "0400"
   with_nested:
     - "{{ find_package_certs.stdout_lines }}"
     - [ 'cert.pem', 'chain.pem', 'fullchain.pem', 'privkey.pem']
