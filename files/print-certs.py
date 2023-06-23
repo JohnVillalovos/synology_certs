@@ -23,8 +23,8 @@ import subprocess
 import sys
 
 # This is based on using Synology DiskStation Manager (DSM) 6.1. Unsure if it
-# works on previous versions. At the time of writing this (5-Mar-2018) I was
-# using "DSM 6.1.5-15254 Update 1"
+# works on previous versions. At the time of writing this (23-Jun-2032) it was
+# working on "DSM 7.1.1-42962 Update 4"
 
 # Directory where certificates used by NGINX are stored
 SYNOLOGY_NGINX_CERTS_DIR = os.path.abspath("/usr/syno/etc/certificate")
@@ -34,15 +34,23 @@ SYNOLOGY_PACKAGES_CERTS_DIR = os.path.abspath("/usr/local/etc/certificate")
 
 def main():
     args = parse_args()
+
+    # Adding two parameters to limit our results:
+    # target: The CN expected (whether it's synology.com or a wildcard cert path)
+    # allcerts: When specified all certificates found are returned, when omitted the
+    #           _archive folder is excluded from output
+    target = args.target
+    allcerts = args.allcerts
+    
     if args.mode == 'nginx':
-        get_certificates(SYNOLOGY_NGINX_CERTS_DIR)
+        get_certificates(SYNOLOGY_NGINX_CERTS_DIR, allcerts, target)
     elif args.mode == "packages":
-        get_certificates(SYNOLOGY_PACKAGES_CERTS_DIR)
+        get_certificates(SYNOLOGY_PACKAGES_CERTS_DIR, allcerts, target)
     else:
         sys.exit("Unknown mode: {}".format(args.mode))
 
 
-def get_certificates(dirname):
+def get_certificates(dirname, allcerts, target):
     if not os.path.isdir(dirname):
         sys.exit("The certificate directory does not exist: {}".format(
             dirname))
@@ -53,24 +61,52 @@ def get_certificates(dirname):
             continue
 
         for (dirpath, dirnames, filenames) in os.walk(service_dir):
-            if 'cert.pem' in filenames:
-                full_path = os.path.join(dirpath, 'cert.pem')
-                host_name = find_cert_host(full_path)
-                print("{}::{}::{}".format(host_name, dirpath, package_name))
+            
+            # If we are looking for all certificates, don't filter our dirpaths
+            if allcerts:
+               if 'cert.pem' in filenames:
+                    
+                    full_path = os.path.join(dirpath, 'cert.pem')
+                    host_name = find_cert_host(full_path)
+                    
+                    # Logic to determine if we're looking for a specific hostname
+                    # If the target is none, return everything, otherwise filter
+                    if target is None: 
+                        print("{}::{}::{}".format(host_name, dirpath, package_name))
+                    elif target == host_name:
+                        print("{}::{}::{}".format(host_name, dirpath, package_name))
+            else:
+                # Exclude the _archive directory from the output
+                if "_archive" not in dirpath:
+                    if 'cert.pem' in filenames:
+                        
+                        full_path = os.path.join(dirpath, 'cert.pem')
+                        host_name = find_cert_host(full_path)
+                        
+                        # Logic to determine if we're looking for a specific hostname
+                        # If the target is none, return everything, otherwise filter
+                        if target is None: 
+                            print("{}::{}::{}".format(host_name, dirpath, package_name))
+                        elif target == host_name:
+                            print("{}::{}::{}".format(host_name, dirpath, package_name))    
 
 
 def find_cert_host(filename):
     cmd_line = ['openssl', 'x509', '-noout', '-subject', '-in', filename]
     stdout = subprocess.check_output(cmd_line, universal_newlines=True)
-    # Format is: "subject=CN = hostname.example.com"
-    _, host_name = stdout.split('subject=CN =', 1)
+    # The previous format was: "subject=CN = hostname.example.com", however in 
+    # DSM 7.x, it appears more information was tacked on after 'subject=' causing the
+    # previous code to fail. Here we just split on 'CN = '
+    _, host_name = stdout.split('CN =', 1)
     host_name = host_name.strip()
     return host_name
 
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('mode', choices=['nginx', 'packages'])
+    parser.add_argument('mode', choices=['nginx', 'packages'], help='Mode limiting certificate search path. Can be either nginx or packages')
+    parser.add_argument('-t', '--target', help='Target CN to find. This is helpful as there may be multiple certificates on a single host')
+    parser.add_argument('-a', '--allcerts', action='store_true', help='Switch that will find all certificates. When omitted, the archived certs are not returned.')
     args = parser.parse_args()
     return args
 

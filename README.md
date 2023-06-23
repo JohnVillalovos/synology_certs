@@ -58,3 +58,8 @@ Author Information
 ------------------
 
 https://github.com/JohnVillalovos
+
+Contributors
+------------
+
+https://github.com/pezhore
