@@ -54,11 +54,11 @@ def print_certificates(dirname: str) -> None:
         for dirpath, _, filenames in os.walk(service_dir):
             if "cert.pem" in filenames:
                 full_path = os.path.join(dirpath, "cert.pem")
-                host_name = find_cert_host(full_path)
+                host_name = get_certificate_hostname(full_path)
                 print(f"{host_name}::{dirpath}::{package_name}")
 
 
-def find_cert_host(filename: str) -> str:
+def get_certificate_hostname(filename: str) -> str:
     cmd_line = ["openssl", "x509", "-noout", "-subject", "-in", filename]
     stdout = subprocess.check_output(cmd_line, universal_newlines=True)
     # Format is: "subject=CN = hostname.example.com"
