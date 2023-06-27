@@ -30,7 +30,7 @@ SYNOLOGY_NGINX_CERTS_DIR = os.path.abspath("/usr/syno/etc/certificate")
 SYNOLOGY_PACKAGES_CERTS_DIR = os.path.abspath("/usr/local/etc/certificate")
 
 
-def main():
+def main() -> int:
     args = parse_args()
     if args.mode == 'nginx':
         get_certificates(SYNOLOGY_NGINX_CERTS_DIR)
@@ -38,9 +38,10 @@ def main():
         get_certificates(SYNOLOGY_PACKAGES_CERTS_DIR)
     else:
         sys.exit("Unknown mode: {}".format(args.mode))
+    return 0
 
 
-def get_certificates(dirname):
+def get_certificates(dirname: str) -> None:
     if not os.path.isdir(dirname):
         sys.exit("The certificate directory does not exist: {}".format(
             dirname))
@@ -57,7 +58,7 @@ def get_certificates(dirname):
                 print("{}::{}::{}".format(host_name, dirpath, package_name))
 
 
-def find_cert_host(filename):
+def find_cert_host(filename: str) -> str:
     cmd_line = ['openssl', 'x509', '-noout', '-subject', '-in', filename]
     stdout = subprocess.check_output(cmd_line, universal_newlines=True)
     # Format is: "subject=CN = hostname.example.com"
@@ -66,7 +67,7 @@ def find_cert_host(filename):
     return host_name
 
 
-def parse_args():
+def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument('mode', choices=['nginx', 'packages'])
     args = parser.parse_args()
