@@ -16,6 +16,7 @@
 # limitations under the License.
 
 import argparse
+import dataclasses
 import os
 import subprocess
 import sys
@@ -67,11 +68,16 @@ def find_cert_host(filename: str) -> str:
     return host_name
 
 
-def parse_args() -> argparse.Namespace:
+@dataclasses.dataclass
+class ProgramArgs:
+    mode: str
+
+
+def parse_args() -> ProgramArgs:
     parser = argparse.ArgumentParser()
     parser.add_argument('mode', choices=['nginx', 'packages'])
     args = parser.parse_args()
-    return args
+    return ProgramArgs(**vars(args))
 
 
 if '__main__' == __name__:
