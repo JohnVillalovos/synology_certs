@@ -34,15 +34,15 @@ SYNOLOGY_PACKAGES_CERTS_DIR = os.path.abspath("/usr/local/etc/certificate")
 def main() -> int:
     args = parse_args()
     if args.mode == "nginx":
-        get_certificates(SYNOLOGY_NGINX_CERTS_DIR)
+        print_certificates(SYNOLOGY_NGINX_CERTS_DIR)
     elif args.mode == "packages":
-        get_certificates(SYNOLOGY_PACKAGES_CERTS_DIR)
+        print_certificates(SYNOLOGY_PACKAGES_CERTS_DIR)
     else:
         sys.exit(f"Unknown mode: {args.mode}")
     return 0
 
 
-def get_certificates(dirname: str) -> None:
+def print_certificates(dirname: str) -> None:
     if not os.path.isdir(dirname):
         sys.exit(f"The certificate directory does not exist: {dirname}")
 
