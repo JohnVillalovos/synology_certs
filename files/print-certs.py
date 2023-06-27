@@ -33,7 +33,7 @@ SYNOLOGY_PACKAGES_CERTS_DIR = os.path.abspath("/usr/local/etc/certificate")
 
 def main() -> int:
     args = parse_args()
-    if args.mode == 'nginx':
+    if args.mode == "nginx":
         get_certificates(SYNOLOGY_NGINX_CERTS_DIR)
     elif args.mode == "packages":
         get_certificates(SYNOLOGY_PACKAGES_CERTS_DIR)
@@ -44,26 +44,25 @@ def main() -> int:
 
 def get_certificates(dirname: str) -> None:
     if not os.path.isdir(dirname):
-        sys.exit("The certificate directory does not exist: {}".format(
-            dirname))
+        sys.exit("The certificate directory does not exist: {}".format(dirname))
 
     for package_name in sorted(os.listdir(dirname)):
         service_dir = os.path.join(dirname, package_name)
         if not os.path.isdir(service_dir):
             continue
 
-        for (dirpath, dirnames, filenames) in os.walk(service_dir):
-            if 'cert.pem' in filenames:
-                full_path = os.path.join(dirpath, 'cert.pem')
+        for dirpath, dirnames, filenames in os.walk(service_dir):
+            if "cert.pem" in filenames:
+                full_path = os.path.join(dirpath, "cert.pem")
                 host_name = find_cert_host(full_path)
                 print("{}::{}::{}".format(host_name, dirpath, package_name))
 
 
 def find_cert_host(filename: str) -> str:
-    cmd_line = ['openssl', 'x509', '-noout', '-subject', '-in', filename]
+    cmd_line = ["openssl", "x509", "-noout", "-subject", "-in", filename]
     stdout = subprocess.check_output(cmd_line, universal_newlines=True)
     # Format is: "subject=CN = hostname.example.com"
-    _, host_name = stdout.split('subject=CN =', 1)
+    _, host_name = stdout.split("subject=CN =", 1)
     host_name = host_name.strip()
     return host_name
 
@@ -75,10 +74,10 @@ class ProgramArgs:
 
 def parse_args() -> ProgramArgs:
     parser = argparse.ArgumentParser()
-    parser.add_argument('mode', choices=['nginx', 'packages'])
+    parser.add_argument("mode", choices=["nginx", "packages"])
     args = parser.parse_args()
     return ProgramArgs(**vars(args))
 
 
-if '__main__' == __name__:
+if "__main__" == __name__:
     sys.exit(main())
