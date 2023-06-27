@@ -38,24 +38,24 @@ def main() -> int:
     elif args.mode == "packages":
         get_certificates(SYNOLOGY_PACKAGES_CERTS_DIR)
     else:
-        sys.exit("Unknown mode: {}".format(args.mode))
+        sys.exit(f"Unknown mode: {args.mode}")
     return 0
 
 
 def get_certificates(dirname: str) -> None:
     if not os.path.isdir(dirname):
-        sys.exit("The certificate directory does not exist: {}".format(dirname))
+        sys.exit(f"The certificate directory does not exist: {dirname}")
 
     for package_name in sorted(os.listdir(dirname)):
         service_dir = os.path.join(dirname, package_name)
         if not os.path.isdir(service_dir):
             continue
 
-        for dirpath, dirnames, filenames in os.walk(service_dir):
+        for dirpath, _, filenames in os.walk(service_dir):
             if "cert.pem" in filenames:
                 full_path = os.path.join(dirpath, "cert.pem")
                 host_name = find_cert_host(full_path)
-                print("{}::{}::{}".format(host_name, dirpath, package_name))
+                print(f"{host_name}::{dirpath}::{package_name}")
 
 
 def find_cert_host(filename: str) -> str:
