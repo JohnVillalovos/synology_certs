@@ -24,7 +24,7 @@
 #   debug: var=find_nginx_certs
 
 - name: Copy new NGINX certificates
-  # item.0 is in the form of: "host.example.com::/usr/syno/etc/certificate/smbftpd/ftpd"
+  # item.0 is in the form of: "host.example.com::/usr/syno/etc/certificate/smbftpd/ftpd::smbftpd"
   # item.0.split('::')[0] = host name
   # item.0.split('::')[1] = directory path
   # item.0.split('::')[2] = package name (ignored for NGINX)
@@ -41,7 +41,7 @@
 #  debug: var=copy_nginx_certs
 
 - name: Restart NGINX
-  command: synosystemctl restart nginx
+  command: /usr/syno/bin/synosystemctl restart nginx
   when: copy_nginx_certs.changed
 
 
@@ -54,7 +54,7 @@
   register: find_package_certs
 
 - name: Copy new package certificates
-  # item.0 is in the form of: "host.example.com::/usr/syno/etc/certificate/smbftpd/ftpd"
+  # item.0 is in the form of: "host.example.com::/usr/local/etc/certificate/HyperBackupVault/HyperBackupVault::HyperBackupVault"
   # item.0.split('::')[0] = host name
   # item.0.split('::')[1] = directory path
   # item.0.split('::')[2] = package name (ignored for NGINX)
