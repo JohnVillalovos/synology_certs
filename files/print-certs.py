@@ -21,9 +21,10 @@ import os
 import subprocess
 import sys
 
-# This is based on using Synology DiskStation Manager (DSM) 6.1. Unsure if it
-# works on previous versions. At the time of writing this (5-Mar-2018) I was
-# using "DSM 6.1.5-15254 Update 1"
+# This is based on using Synology DiskStation Manager (DSM) 7.1 & 7.2. Unsure
+# if it works on previous versions. At the time of writing this (25-Aug-2023) I
+# was using "DSM 7.1.1-42962 Update 6" on one Synology and "DSM 7.2-64570
+# Update 1" on another and it works for both.
 
 # Directory where certificates used by NGINX are stored
 SYNOLOGY_NGINX_CERTS_DIR = os.path.abspath("/usr/syno/etc/certificate")

@@ -1,12 +1,12 @@
 synology_certs
 ==============
 
-This is an Ansible role to update existing certificates on a Synology system
-running DiskStation Manager (DSM) 6.0 or higher. It has been designed with Lets
-Encrypt (https://letsencrypt.org/) in mind. And in particular used the Lets
-Encrypt client https://github.com/Neilpang/acme.sh. The reason for this role is
-that I use DNS-01 authentication mode for Lets Encrypt certificates which
-Synology does not yet support.
+This is an Ansible role to update existing certificates on a Synology system.
+It has been tested on DSM 7.1 and DSM 7.2 systems. It may work on DSM 6.x. It
+has been designed with Lets Encrypt (https://letsencrypt.org/) in mind. And in
+particular used the Lets Encrypt client https://github.com/Neilpang/acme.sh.
+The reason for this role is that I use DNS-01 authentication mode for Lets
+Encrypt certificates which Synology does not yet support.
 
 Requirements
 ------------
